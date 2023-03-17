@@ -88,46 +88,75 @@
 				</div> 
 		</div>
   </div>
-</div>  -->  
-	
-<?php
+</div>  --> 
 
-// function admin_api()
-// {
-//     add_menu_page(
-//         __('Conspiredminds - Conspiredminds', 'my-textdomain'),
-//         __('Conspiredminds', 'my-textdomain'),
-//         'manage_options',
-//         'sample-page',
-//         'admin_api_data',
-//         3
-//     );
-// }
-// add_action('admin_menu', 'admin_api');
+<div class="container">
+  <h2>Dashboard</h2>	
 
-function admin_api_data(){
-
-	defined( 'ABSPATH' ) or die( 'Unauthorized Access' );
-
-	$url = 'https://data.cityofnewyork.us/resource/3h2n-5cm9.json?bin=1079062';
-	  
-	  $arguments = array(
-	    'method' => 'GET'
-	  );
-
-	$response = wp_remote_get( $url, $arguments );
-
-	  if ( is_wp_error( $response ) ) {
-	      $error_message = $response->get_error_message();
-	      return "Something went wrong: $error_message";
-	  } 
-	  else {
-	      echo '<pre>';
-	      var_dump( wp_remote_retrieve_body( $response ) );	
-	      echo '</pre>';
-	  } 
-}
-  
-
-?>
-
+  	<table id="example" class="display" style="width:100%"> 
+  		<thead>
+            <tr>
+              <th>isn_dob_bis_viol</th>
+              <th>boro</th>
+              <th>bin</th>
+              <th>block</th>
+              <th>lot</th>
+              <th>issue_date</th>
+              <th>violation_type_code</th>
+              <th>violation_number</th>
+              <th>house_number</th>
+              <th>street</th>
+              <th>disposition_date</th>
+              <th>disposition_comments</th>
+              <th>number</th>
+              <th>violation_category</th>
+              <th>violation_type</th>
+            </tr>
+        </thead>
+    		<?php
+    			defined( 'ABSPATH' ) or die( 'Unauthorized Access' );
+    			$url = 'https://data.cityofnewyork.us/resource/3h2n-5cm9.json?bin=1079062';	  
+    		    $arguments = array(
+    			 'method' => 'GET'
+    			);
+    			$response = wp_remote_get( $url, $arguments );
+    			if ( is_wp_error( $response ) ) {
+    		    $error_message = $response->get_error_message();
+    		    return "Something went wrong: $error_message";
+    			} 
+    			else { 
+    		    $data = json_decode(wp_remote_retrieve_body($response));
+    		    // echo "<pre />";
+    			} 
+    		?>
+		<tbody>
+            <tr>
+    			<?php
+    		  	foreach($data as $key => $value){ 
+    		  	?>
+    		<td>
+    			<?php
+        			echo "'isn_dob_bis_viol' : $value->isn_dob_bis_viol "." 
+                    'boro' : $value->boro "." 	
+                    'bin' : $value->bin "."  
+                    'block' : $value->block "."  
+                    'lot' : $value->lot "." 
+                    'issue_date' : $value->issue_date "." 
+                    'violation_type_code' : $value->violation_type_code "." 
+                    'violation_number' : $value->violation_number "."
+        			'house_number' : $value->house_number "." 
+                    'street' : $value->street "."
+        			'disposition_date' : $value->disposition_date "." 
+                    'disposition_comments' : $value->disposition_comments "." 
+                    'number' : $value->number "." 
+                    'violation_category' : $value->violation_category "." 
+                    'violation_type' : $value->violation_type";
+    			    echo "<br/>";
+    			} 
+     			?>
+    		 </td>
+	       </tr>
+		</tbody>
+	</table>
+</div>
+ 
