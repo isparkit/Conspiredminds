@@ -40,7 +40,38 @@ function deactivate_myplugin() {
 // Initialize DB Tables
 function init_db_myplugin() {
 
-    // WP Globals
+    //WP Globals
+    // global $table_prefix, $wpdb;
+
+    // // Customer Table
+    // $customerTable = $table_prefix . 'wp_conspiremind_data123';
+
+    // // Create Customer Table if not exist
+    // if( $wpdb->get_var( "show tables like '$customerTable'" ) != $customerTable ) {
+
+    //     // Query - Create Table
+    //     $sql = "CREATE TABLE `$customerTable` (";
+    //     $sql .= " `isn_dob_bis_viol` int(11) NOT NULL auto_increment, ";
+    //     $sql .= " `boro` varchar(500) NOT NULL, ";
+    //     $sql .= " `bin` int(11) NOT NULL, ";
+    //     $sql .= " `block` varchar(500), ";
+    //     $sql .= " `lot` varchar(500) NOT NULL, ";
+    //     $sql .= " `issue_date` varchar(500), ";
+    //     $sql .= " `violation_type_code` varchar(500), ";
+    //     $sql .= " `violation_number` varchar(150) NOT NULL, ";
+    //     $sql .= " `house_number` varchar(150), ";
+    //     $sql .= " `street` varchar(15), ";
+    //     $sql .= " `disposition_date` varchar(5) NOT NULL, ";
+    //     $sql .= " PRIMARY KEY `bin` (`bin`) ";
+    //     $sql .= ") ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;";
+
+    //     // Include Upgrade Script
+    //     require_once( ABSPATH . '/wp-admin/includes/upgrade.php' );
+    
+    //     // Create Table
+    //     dbDelta( $sql );
+
+
     global $table_prefix, $wpdb;
 
     // Customer Table
@@ -51,18 +82,22 @@ function init_db_myplugin() {
 
         // Query - Create Table
         $sql = "CREATE TABLE `$customerTable` (";
-        $sql .= " `id` int(11) NOT NULL auto_increment, ";
-        $sql .= " `email` varchar(500) NOT NULL, ";
-        $sql .= " `fname` varchar(500) NOT NULL, ";
-        $sql .= " `sname` varchar(500), ";
-        $sql .= " `line1` varchar(500) NOT NULL, ";
-        $sql .= " `line2` varchar(500), ";
-        $sql .= " `line3` varchar(500), ";
-        $sql .= " `city` varchar(150) NOT NULL, ";
-        $sql .= " `state` varchar(150), ";
-        $sql .= " `area` varchar(15), ";
-        $sql .= " `country` varchar(5) NOT NULL, ";
-        $sql .= " PRIMARY KEY `customer_id` (`id`) ";
+        $sql .= " `bin` int(11) NOT NULL auto_increment, ";
+        $sql .= " `isn_dob_bis_viol` varchar(500) NOT NULL, ";
+        $sql .= " `boro` int(10) NOT NULL, ";
+        $sql .= " `block` int(500), ";
+        $sql .= " `lot` int(500) NOT NULL, ";
+        $sql .= " `issue_date` date(500), ";
+        $sql .= " `violation_type_code` varchar(500), ";
+        $sql .= " `violation_number` int(150) NOT NULL, ";
+        $sql .= " `house_number` int(150), ";
+        $sql .= " `street` varchar(500), ";
+        $sql .= " `disposition_date` date(5) NOT NULL, ";
+        $sql .= " `disposition_comments` varchar(500) NOT NULL, ";
+        $sql .= " `number` varchar(200) NOT NULL, ";
+        $sql .= " `violation_category` varchar(500) NOT NULL, ";
+        $sql .= " `violation_type` varchar(500) NOT NULL, ";
+        $sql .= " PRIMARY KEY `bin` (`bin`) ";
         $sql .= ") ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;";
 
         // Include Upgrade Script
@@ -73,6 +108,7 @@ function init_db_myplugin() {
     }
 }
 
+register_activation_hook( __FILE__, 'init_db_myplugin' );
  
 function admin_menu()
 {
@@ -159,8 +195,33 @@ function load_custom_wp_admin_style()
     wp_enqueue_script('bs_datatable_j3');  
 }
 add_action('admin_enqueue_scripts', 'load_custom_wp_admin_style');
+
+function front_table(){
+
+    wp_register_style( 'front_table_css1','https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css');
+    wp_enqueue_style('front_table_css1'); 
+
+    wp_register_style( 'front_table_css2', 'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.css');
+    wp_enqueue_style('front_table_css2'); 
+
+    wp_register_style( 'front_table_css3','https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css');
+    wp_enqueue_style('front_table_css3'); 
+
+
+    wp_register_script( 'front_front_js','https://code.jquery.com/jquery-3.5.1.js');
+    wp_enqueue_script('front_front_js'); 
+
+    wp_register_script( 'front_front_js2','https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js');
+    wp_enqueue_script('front_front_js2'); 
+
+    wp_register_script( 'front_front_js3','https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap4.min.js');
+    wp_enqueue_script('front_front_js3'); 
+
+    
+    wp_register_script( 'custom_wp_front_js',  plugin_dir_url( __FILE__ ) . '/assets/main.js');
+    wp_enqueue_script( 'custom_wp_front_js' ); 
+
+}
+add_action('wp_enqueue_scripts','front_table');
 ?>
-
-
-
 

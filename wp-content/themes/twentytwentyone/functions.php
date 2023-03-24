@@ -674,3 +674,15 @@ function wporg_custom_post_type() {
 add_action('init', 'wporg_custom_post_type');
 
 
+// functions.php
+
+function wpa_enqueue_scripts() {
+	wp_register_script( 'wpa-main-js', 'https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js');
+	wp_enqueue_script('wpa-main-js');
+
+	wp_register_style( 'wpa-main-css', './assets/css/custom.css');
+	wp_enqueue_style('wpa-main-css');
+}
+
+add_action( 'wp_enqueue_scripts', 'wpa_enqueue_scripts', 100 );
+
