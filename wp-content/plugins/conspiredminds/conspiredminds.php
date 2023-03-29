@@ -40,64 +40,37 @@ function deactivate_myplugin() {
 // Initialize DB Tables
 function init_db_myplugin() {
 
-    //WP Globals
-    // global $table_prefix, $wpdb;
-
-    // // Customer Table
-    // $customerTable = $table_prefix . 'wp_conspiremind_data123';
-
-    // // Create Customer Table if not exist
-    // if( $wpdb->get_var( "show tables like '$customerTable'" ) != $customerTable ) {
-
-    //     // Query - Create Table
-    //     $sql = "CREATE TABLE `$customerTable` (";
-    //     $sql .= " `isn_dob_bis_viol` int(11) NOT NULL auto_increment, ";
-    //     $sql .= " `boro` varchar(500) NOT NULL, ";
-    //     $sql .= " `bin` int(11) NOT NULL, ";
-    //     $sql .= " `block` varchar(500), ";
-    //     $sql .= " `lot` varchar(500) NOT NULL, ";
-    //     $sql .= " `issue_date` varchar(500), ";
-    //     $sql .= " `violation_type_code` varchar(500), ";
-    //     $sql .= " `violation_number` varchar(150) NOT NULL, ";
-    //     $sql .= " `house_number` varchar(150), ";
-    //     $sql .= " `street` varchar(15), ";
-    //     $sql .= " `disposition_date` varchar(5) NOT NULL, ";
-    //     $sql .= " PRIMARY KEY `bin` (`bin`) ";
-    //     $sql .= ") ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;";
-
-    //     // Include Upgrade Script
-    //     require_once( ABSPATH . '/wp-admin/includes/upgrade.php' );
-    
-    //     // Create Table
-    //     dbDelta( $sql );
-
-
+    // WP Globals
     global $table_prefix, $wpdb;
 
     // Customer Table
-    $customerTable = $table_prefix . 'wp_conspiremind_data';
+    $customerTable = $table_prefix . 'conspiremind';
 
     // Create Customer Table if not exist
     if( $wpdb->get_var( "show tables like '$customerTable'" ) != $customerTable ) {
 
         // Query - Create Table
         $sql = "CREATE TABLE `$customerTable` (";
-        $sql .= " `bin` int(11) NOT NULL auto_increment, ";
+        $sql .= " `id` int(11) NOT NULL auto_increment, ";
+        $sql .= " `bin` varchar(500) NOT NULL, ";
         $sql .= " `isn_dob_bis_viol` varchar(500) NOT NULL, ";
-        $sql .= " `boro` int(10) NOT NULL, ";
-        $sql .= " `block` int(500), ";
-        $sql .= " `lot` int(500) NOT NULL, ";
-        $sql .= " `issue_date` date(500), ";
-        $sql .= " `violation_type_code` varchar(500), ";
-        $sql .= " `violation_number` int(150) NOT NULL, ";
-        $sql .= " `house_number` int(150), ";
-        $sql .= " `street` varchar(500), ";
-        $sql .= " `disposition_date` date(5) NOT NULL, ";
+        $sql .= " `boro` varchar(500), ";
+        $sql .= " `block` varchar(500) NOT NULL, ";
+        $sql .= " `lot` varchar(500), ";
+        $sql .= " `issue_date` varchar(500), ";
+        $sql .= " `violation_type_code` varchar(150) NOT NULL, ";
+        $sql .= " `violation_number` varchar(500), ";
+        $sql .= " `house_number` varchar(500), ";
+        $sql .= " `street` varchar(500) NOT NULL, ";
+        $sql .= " `disposition_date` varchar(500) NOT NULL, ";
+        $sql .= " `device_number` varchar(500) NOT NULL, ";
+        $sql .= " `description` varchar(500) NOT NULL, ";
         $sql .= " `disposition_comments` varchar(500) NOT NULL, ";
-        $sql .= " `number` varchar(200) NOT NULL, ";
+        $sql .= " `number` varchar(500) NOT NULL, ";
         $sql .= " `violation_category` varchar(500) NOT NULL, ";
         $sql .= " `violation_type` varchar(500) NOT NULL, ";
-        $sql .= " PRIMARY KEY `bin` (`bin`) ";
+        $sql .= " `status` varchar(1) NOT NULL, ";
+        $sql .= " PRIMARY KEY `customer_id` (`id`) ";
         $sql .= ") ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;";
 
         // Include Upgrade Script
@@ -109,7 +82,68 @@ function init_db_myplugin() {
 }
 
 register_activation_hook( __FILE__, 'init_db_myplugin' );
+
+function insertData() {     
+    global $wpdb; 
+    $table_name = $wpdb->prefix . 'conspiremind';     
+
+    $db = conspiredminds_restapi_callback();
+
+    foreach ($db as $key => $value) {
+        $result = $wpdb->insert( 
+            $table_name, 
+            array(  
+              'bin' => $value->bin, 
+              'isn_dob_bis_viol' => $value->isn_dob_bis_viol, 
+              'boro' => $value->boro,
+              'block' => $value->block, 
+              'lot' => $value->lot, 
+              'issue_date' => $value->issue_date, 
+              'violation_type_code' => $value->violation_type_code, 
+              'violation_number' => $value->violation_number, 
+              'house_number' => $value->house_number, 
+              'street' => $value->street, 
+            //   'disposition_date' => $value->disposition_date,
+            //   'device_number' => $value->device_number,
+            //   'description' => $value->description, 
+              // 'disposition_comments' => $value->disposition_comments, 
+              // 'number' => $value->number,
+              // 'violation_category' => $value->violation_category, 
+              // 'violation_type' => $value->violation_type, 
+              // 'status' => $value->status, 
+            ),
+        );        
+        // if (!$result) {
+        //     print 'There was an error';
+        // }
+    }
+}
+
+add_action( 'init', 'insertData' );
+
+function conspiredminds_restapi_callback(){
+    $url = 'https://data.cityofnewyork.us/resource/3h2n-5cm9.json?bin=1079062';   
+        $arguments = array(
+         'method' => 'GET'
+        );
+        $response = wp_remote_get( $url, $arguments );
+        if ( is_wp_error( $response ) ) {
+        $error_message = $response->get_error_message();
+        return "Something went wrong: $error_message";
+        } 
+        else { 
+        $data = json_decode(wp_remote_retrieve_body($response));
+        } 
+    return $data;
+}
+
+//Add cron event on data
+add_action( 'conspiredminds', 'insertData' );
+// function cw_function() {
+// wp_mail( 'nishita@demolink.info', 'Cloudways Cron', 'conspiredminds - a Managed Properties Data!' );
+// }
  
+//plugin menu page 
 function admin_menu()
 {
     add_menu_page(
@@ -132,30 +166,29 @@ function admin_menu()
 
 add_action('admin_menu', 'admin_menu');
 
-// Shortcode for Front Show 
+// Shortcode for Front view
 function rest_front_data()
 {
     ?>
-    <?php require_once __DIR__ . '/templates/admin.php'; ?>
-    <?php
+<?php require_once __DIR__ . '/templates/admin.php'; ?>
+<?php
 }
 
 add_shortcode('api-data', 'rest_front_data');
 
-
-
+//Display data into Admin Panel
 function my_admin_page_contents()
 {
     ?>
-    <?php require_once __DIR__ . '/templates/admin.php'; ?>
-    <?php
+<?php require_once __DIR__ . '/templates/admin.php'; ?>
+<?php
 }
 
-
+// Register scripts and css 
 function load_custom_wp_admin_style()
 {
    
-    wp_register_style( 'custom_wp_admin_css',  plugin_dir_url( __FILE__ ) . '/assets/main.css' );
+    wp_register_style( 'custom_wp_admin_css',  plugin_dir_url( __FILE__ ) . '/assets/main.css');
     wp_enqueue_style( 'custom_wp_admin_css' );
 
     wp_register_script( 'custom_external_admin_js', 'https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js' );
@@ -196,6 +229,7 @@ function load_custom_wp_admin_style()
 }
 add_action('admin_enqueue_scripts', 'load_custom_wp_admin_style');
 
+// Register scripts and css for Front View
 function front_table(){
 
     wp_register_style( 'front_table_css1','https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css');
@@ -224,4 +258,3 @@ function front_table(){
 }
 add_action('wp_enqueue_scripts','front_table');
 ?>
-
