@@ -83,46 +83,48 @@ function init_db_myplugin() {
 
 register_activation_hook( __FILE__, 'init_db_myplugin' );
 
-function insertData() {     
-    global $wpdb; 
-    $table_name = $wpdb->prefix . 'conspiremind';     
 
-    $db = conspiredminds_restapi_callback();
+    function insertData() {     
+        global $wpdb; 
+        $table_name = $wpdb->prefix . 'conspiremind';     
 
-    foreach ($db as $key => $value) {
-        $result = $wpdb->insert( 
-            $table_name, 
-            array(  
-              'bin' => $value->bin, 
-              'isn_dob_bis_viol' => $value->isn_dob_bis_viol, 
-              'boro' => $value->boro,
-              'block' => $value->block, 
-              'lot' => $value->lot, 
-              'issue_date' => $value->issue_date, 
-              'violation_type_code' => $value->violation_type_code, 
-              'violation_number' => $value->violation_number, 
-              'house_number' => $value->house_number, 
-              'street' => $value->street, 
-            //   'disposition_date' => $value->disposition_date,
-            //   'device_number' => $value->device_number,
-            //   'description' => $value->description, 
-              // 'disposition_comments' => $value->disposition_comments, 
-              // 'number' => $value->number,
-              // 'violation_category' => $value->violation_category, 
-              // 'violation_type' => $value->violation_type, 
-              // 'status' => $value->status, 
-            ),
-        );        
-        // if (!$result) {
-        //     print 'There was an error';
-        // }
+        $db = conspiredminds_restapi_callback();
+         
+        foreach ($db as $key => $value) {
+            $result = $wpdb->insert( 
+                $table_name, 
+                array(  
+                'bin' => $value->bin, 
+                'isn_dob_bis_viol' => $value->isn_dob_bis_viol, 
+                'boro' => $value->boro,
+                'block' => $value->block, 
+                'lot' => $value->lot, 
+                'issue_date' => $value->issue_date, 
+                'violation_type_code' => $value->violation_type_code, 
+                'violation_number' => $value->violation_number, 
+                'house_number' => $value->house_number, 
+                'street' => $value->street, 
+                'disposition_date' => $value->disposition_date,
+                'device_number' => $value->device_number,
+                'description' => $value->description, 
+                'disposition_comments' => $value->disposition_comments, 
+                'number' => $value->number,
+                'violation_category' => $value->violation_category, 
+                'violation_type' => $value->violation_type, 
+                // 'status' => $value->status, 
+                ),
+            );        
+            // if (!$result) {
+            //     print 'There was an error';
+            // }
+        }
     }
-}
+
 
 add_action( 'init', 'insertData' );
 
 function conspiredminds_restapi_callback(){
-    $url = 'https://data.cityofnewyork.us/resource/3h2n-5cm9.json?bin=1079062';   
+    $url = 'https://data.cityofnewyork.us/resource/3h2n-5cm9.json';   
         $arguments = array(
          'method' => 'GET'
         );
@@ -138,10 +140,7 @@ function conspiredminds_restapi_callback(){
 }
 
 //Add cron event on data
-add_action( 'conspiredminds', 'insertData' );
-// function cw_function() {
-// wp_mail( 'nishita@demolink.info', 'Cloudways Cron', 'conspiredminds - a Managed Properties Data!' );
-// }
+// add_action( 'conspiredmind', 'insertData' );
  
 //plugin menu page 
 function admin_menu()
@@ -187,8 +186,9 @@ function my_admin_page_contents()
 // Register scripts and css 
 function load_custom_wp_admin_style()
 {
+    $date = date('h:i:s A');
    
-    wp_register_style( 'custom_wp_admin_css',  plugin_dir_url( __FILE__ ) . '/assets/main.css');
+    wp_register_style( 'custom_wp_admin_css',  plugin_dir_url( __FILE__ ) . 'assets/main.css?var='.$date.'');
     wp_enqueue_style( 'custom_wp_admin_css' );
 
     wp_register_script( 'custom_external_admin_js', 'https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js' );
@@ -218,6 +218,9 @@ function load_custom_wp_admin_style()
     wp_register_style( 'd_datatable_css2','https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css');
     wp_enqueue_style('d_datatable_css2');  
 
+    wp_register_style( 'd_datatable_btn_css','https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css');
+    wp_enqueue_style('d_datatable_btn_css'); 
+
     wp_register_script( 'bs_datatable_js','https://code.jquery.com/jquery-3.5.1.js');
     wp_enqueue_script('bs_datatable_js'); 
 
@@ -226,6 +229,24 @@ function load_custom_wp_admin_style()
 
     wp_register_script( 'bs_datatable_j3','https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap4.min.js');
     wp_enqueue_script('bs_datatable_j3');  
+
+    wp_register_script( 'bs_datatable_btn','https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js');
+    wp_enqueue_script('bs_datatable_btn'); 
+    
+    wp_register_script( 'bs_datatable_file','https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js');
+    wp_enqueue_script('bs_datatable_file');
+
+    wp_register_script( 'bs_datatable_pdf','https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js');
+    wp_enqueue_script('bs_datatable_pdf');
+
+    wp_register_script( 'bs_datatable_pdf2','https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js');
+    wp_enqueue_script('bs_datatable_pdf2');
+
+    wp_register_script( 'bs_datatable_html_btn','https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js');
+    wp_enqueue_script('bs_datatable_html_btn');
+
+    wp_register_script( 'bs_datatable_print','https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js');
+    wp_enqueue_script('bs_datatable_print');
 }
 add_action('admin_enqueue_scripts', 'load_custom_wp_admin_style');
 
@@ -258,3 +279,4 @@ function front_table(){
 }
 add_action('wp_enqueue_scripts','front_table');
 ?>
+ 
